@@ -23,6 +23,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.io.File
 import java.io.IOException
 import android.graphics.Point
+import android.util.Size
 
 
 class FlutterScreenRecordingPlugin(
@@ -36,13 +37,22 @@ class FlutterScreenRecordingPlugin(
     var mMediaProjection: MediaProjection? = null
     var mMediaProjectionCallback: MediaProjectionCallback? = null
     var mVirtualDisplay: VirtualDisplay? = null
-    var mDisplayWidth: Int = 1280
-    var mDisplayHeight: Int = 720
+    val mDisplayWidth: Int = getSize().width
+    val mDisplayHeight: Int = getSize().height
     var storePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath + File.separator
     var videoName: String? = ""
     var recordAudio: Boolean? = false;
     private val SCREEN_RECORD_REQUEST_CODE = 333
     private val SCREEN_STOP_RECORD_REQUEST_CODE = 334
+
+    private fun getSize():Size {
+        val context = registrar.context()
+        val point = Point()
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val display = windowManager.defaultDisplay
+        display.getRealSize(point)
+        return Size(point.x, point.y)
+    }
 
     private lateinit var _result: MethodChannel.Result
 
@@ -117,10 +127,10 @@ class FlutterScreenRecordingPlugin(
         val screenRatio: Double = (screenSize.x.toDouble() / screenSize.y.toDouble())
 
         println(screenSize.x.toString() + " --- " + screenSize.y.toString())
-        var height: Double = mDisplayWidth / screenRatio;
+        val height: Double = mDisplayWidth / screenRatio;
         println("height - " + height)
 
-        mDisplayHeight = height.toInt()
+//        mDisplayHeight = height.toInt()
 
 /*        mDisplayWidth = 2560;
         mDisplayHeight = 1440;*/
